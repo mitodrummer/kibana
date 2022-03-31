@@ -83,7 +83,10 @@ export const updateTimelineGraphEventId = actionCreator<{ id: string; graphEvent
 
 export const updateTimelineSessionViewSessionId = actionCreator<{
   id: string;
-  eventId: string | null;
+  sessionEntityId: string | null;
+  jumpToEntityId?: string;
+  jumpToCursor?: string;
+  isAlert?: boolean;
 }>('UPDATE_TIMELINE_SESSION_VIEW_SESSION_ID');
 
 export const unPinEvent = actionCreator<{ id: string; eventId: string }>('UN_PIN_EVENT');

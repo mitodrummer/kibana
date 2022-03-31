@@ -17,7 +17,11 @@ import {
 import { FormattedMessage } from '@kbn/i18n-react';
 import { SectionLoading } from '../../shared_imports';
 import { ProcessTree } from '../process_tree';
-import { AlertStatusEventEntityIdMap, Process } from '../../../common/types/process_tree';
+import {
+  AlertStatusEventEntityIdMap,
+  Process,
+  ProcessEvent,
+} from '../../../common/types/process_tree';
 import { DisplayOptionsState } from '../../../common/types/session_view';
 import { SessionViewDeps } from '../../types';
 import { SessionViewDetailPanel } from '../session_view_detail_panel';
@@ -36,7 +40,9 @@ import {
 export const SessionView = ({
   sessionEntityId,
   height,
-  jumpToEvent,
+  jumpToEntityId,
+  jumpToCursor,
+  investigatedAlertId,
   loadAlertDetails,
 }: SessionViewDeps) => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -49,11 +55,22 @@ export const SessionView = ({
   });
   const [fetchAlertStatus, setFetchAlertStatus] = useState<string[]>([]);
   const [updatedAlertsStatus, setUpdatedAlertsStatus] = useState<AlertStatusEventEntityIdMap>({});
+  const [currentJumpToEntityId, setCurrentJumpToEntityId] = useState(jumpToEntityId);
+  const [currentJumpToCursor, setCurrentJumpToCursor] = useState(jumpToCursor);
 
   const styles = useStyles({ height });
 
   const onProcessSelected = useCallback((process: Process | null) => {
     setSelectedProcess(process);
+  }, []);
+
+  const onJumpToEvent = useCallback((event: ProcessEvent) => {
+    if (event.process) {
+      const { entity_id, start } = event.process;
+      setCurrentJumpToEntityId(entity_id);
+      setCurrentJumpToCursor(start);
+      setSelectedProcess(null);
+    }
   }, []);
 
   const {
@@ -64,7 +81,7 @@ export const SessionView = ({
     isFetching,
     fetchPreviousPage,
     hasPreviousPage,
-  } = useFetchSessionViewProcessEvents(sessionEntityId, jumpToEvent);
+  } = useFetchSessionViewProcessEvents(sessionEntityId, currentJumpToCursor);
 
   const alertsQuery = useFetchSessionViewAlerts(sessionEntityId);
   const { data: alerts, error: alertsError, isFetching: alertsFetching } = alertsQuery;
@@ -220,7 +237,8 @@ export const SessionView = ({
                       searchQuery={searchQuery}
                       selectedProcess={selectedProcess}
                       onProcessSelected={onProcessSelected}
-                      jumpToEvent={jumpToEvent}
+                      jumpToEntityId={currentJumpToEntityId}
+                      investigatedAlertId={investigatedAlertId}
                       isFetching={isFetching}
                       hasPreviousPage={hasPreviousPage}
                       hasNextPage={hasNextPage}
@@ -248,9 +266,9 @@ export const SessionView = ({
                   >
                     <SessionViewDetailPanel
                       alerts={alerts}
-                      investigatedAlert={jumpToEvent}
+                      investigatedAlertId={investigatedAlertId}
                       selectedProcess={selectedProcess}
-                      onProcessSelected={onProcessSelected}
+                      onJumpToEvent={onJumpToEvent}
                       onShowAlertDetails={onShowAlertDetails}
                     />
                   </EuiResizablePanel>

@@ -289,11 +289,17 @@ export const updateGraphEventId = ({
 
 export const updateSessionViewSessionId = ({
   id,
-  eventId,
+  sessionEntityId,
+  jumpToEntityId,
+  jumpToCursor,
+  isAlert,
   timelineById,
 }: {
   id: string;
-  eventId: string | null;
+  sessionEntityId: string | null;
+  jumpToEntityId?: string;
+  jumpToCursor?: string;
+  isAlert?: boolean;
   timelineById: TimelineById;
 }): TimelineById => {
   const timeline = timelineById[id];
@@ -302,7 +308,12 @@ export const updateSessionViewSessionId = ({
     ...timelineById,
     [id]: {
       ...timeline,
-      sessionViewId: eventId,
+      sessionViewConfig: {
+        sessionEntityId,
+        jumpToEntityId,
+        jumpToCursor,
+        isAlert,
+      },
     },
   };
 };

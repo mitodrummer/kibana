@@ -21,6 +21,13 @@ export const DEFAULT_PAGE_COUNT = 2; // Eui Pager will not render unless this is
 export type KqlMode = 'filter' | 'search';
 export type ColumnHeaderType = 'not-filtered' | 'text-filter';
 
+export interface SessionViewConfig {
+  sessionEntityId: string | null;
+  jumpToEntityId?: string;
+  jumpToCursor?: string;
+  isAlert?: boolean;
+}
+
 export type TimelineModel = TGridModelForTimeline & {
   /** The selected tab to displayed in the timeline */
   activeTab: TimelineTabs;
@@ -63,7 +70,8 @@ export type TimelineModel = TGridModelForTimeline & {
   resolveTimelineConfig?: ResolveTimelineConfig;
   showSaveModal?: boolean;
   savedQueryId?: string | null;
-  sessionViewId: string | null;
+  /** props for loading session view **/
+  sessionViewConfig?: SessionViewConfig;
   /** When true, show the timeline flyover */
   show: boolean;
   /** status: active | draft */
@@ -119,7 +127,7 @@ export type SubsetTimelineModel = Readonly<
     | 'dateRange'
     | 'selectAll'
     | 'selectedEventIds'
-    | 'sessionViewId'
+    | 'sessionViewConfig'
     | 'show'
     | 'showCheckboxes'
     | 'sort'

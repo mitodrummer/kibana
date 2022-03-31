@@ -26,6 +26,7 @@ export interface ProcessEcs {
   title?: string[];
   thread?: Thread;
   working_directory?: string[];
+  start?: string[];
 }
 
 export interface ProcessSessionData {

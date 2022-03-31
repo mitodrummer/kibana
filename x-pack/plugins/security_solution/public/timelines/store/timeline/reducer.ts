@@ -148,10 +148,20 @@ export const timelineReducer = reducerWithInitialState(initialTimelineState)
     ...state,
     timelineById: updateGraphEventId({ id, graphEventId, timelineById: state.timelineById }),
   }))
-  .case(updateTimelineSessionViewSessionId, (state, { id, eventId }) => ({
-    ...state,
-    timelineById: updateSessionViewSessionId({ id, eventId, timelineById: state.timelineById }),
-  }))
+  .case(
+    updateTimelineSessionViewSessionId,
+    (state, { id, sessionEntityId, jumpToEntityId, jumpToCursor, isAlert }) => ({
+      ...state,
+      timelineById: updateSessionViewSessionId({
+        id,
+        sessionEntityId,
+        jumpToEntityId,
+        jumpToCursor,
+        isAlert,
+        timelineById: state.timelineById,
+      }),
+    })
+  )
   .case(pinEvent, (state, { id, eventId }) => ({
     ...state,
     timelineById: pinTimelineEvent({ id, eventId, timelineById: state.timelineById }),

@@ -25,11 +25,10 @@ import {
 
 export const useFetchSessionViewProcessEvents = (
   sessionEntityId: string,
-  jumpToEvent: ProcessEvent | undefined
+  jumpToCursor?: string
 ) => {
   const { http } = useKibana<CoreStart>().services;
   const [isJumpToFirstPage, setIsJumpToFirstPage] = useState<boolean>(false);
-  const jumpToCursor = jumpToEvent && jumpToEvent.process.start;
   const cachingKeys = [QUERY_KEY_PROCESS_EVENTS, sessionEntityId];
 
   const query = useInfiniteQuery(
@@ -64,7 +63,7 @@ export const useFetchSessionViewProcessEvents = (
         }
       },
       getPreviousPageParam: (firstPage) => {
-        if (jumpToEvent && firstPage.events.length === PROCESS_EVENTS_PER_PAGE) {
+        if (jumpToCursor && firstPage.events.length === PROCESS_EVENTS_PER_PAGE) {
           return {
             cursor: firstPage.events[0].process.start,
             forward: false,
@@ -78,11 +77,11 @@ export const useFetchSessionViewProcessEvents = (
   );
 
   useEffect(() => {
-    if (jumpToEvent && query.data?.pages.length === 1 && !isJumpToFirstPage) {
+    if (jumpToCursor && query.data?.pages.length === 1 && !isJumpToFirstPage) {
       query.fetchPreviousPage({ cancelRefetch: true });
       setIsJumpToFirstPage(true);
     }
-  }, [jumpToEvent, query, isJumpToFirstPage]);
+  }, [jumpToCursor, query, isJumpToFirstPage]);
 
   return query;
 };
