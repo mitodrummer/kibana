@@ -130,7 +130,7 @@ export const useSessionView = ({
     } else {
       if (activeTab === TimelineTabs.graph) {
         dispatch(updateTimelineGraphEventId({ id: timelineId, graphEventId: '' }));
-        if (prevActiveTab === TimelineTabs.session && !sessionViewConfig) {
+        if (prevActiveTab === TimelineTabs.session && !sessionViewConfig?.sessionEntityId) {
           dispatch(setActiveTabTimeline({ id: timelineId, activeTab: TimelineTabs.query }));
         }
       } else if (activeTab === TimelineTabs.session) {
@@ -150,7 +150,7 @@ export const useSessionView = ({
     activeTab,
     prevActiveTab,
     graphEventId,
-    sessionViewConfig,
+    sessionViewConfig?.sessionEntityId,
   ]);
   const fullScreen = useMemo(
     () => isFullScreen({ globalFullScreen, timelineId, timelineFullScreen }),
@@ -201,6 +201,8 @@ export const useSessionView = ({
         });
       }
     }
+
+    return null;
   }, [openDetailsPanel, sessionView, sessionViewConfig]);
 
   const navigation = useMemo(() => {
