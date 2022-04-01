@@ -86,7 +86,7 @@ export const updateTimelineSessionViewSessionId = actionCreator<{
   sessionEntityId: string | null;
   jumpToEntityId?: string;
   jumpToCursor?: string;
-  isAlert?: boolean;
+  investigatedAlertId?: string;
 }>('UPDATE_TIMELINE_SESSION_VIEW_SESSION_ID');
 
 export const unPinEvent = actionCreator<{ id: string; eventId: string }>('UN_PIN_EVENT');

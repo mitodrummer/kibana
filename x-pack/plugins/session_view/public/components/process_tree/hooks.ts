@@ -144,6 +144,10 @@ export class ProcessImpl implements Process {
   isUserEntered() {
     const event = this.getDetails();
 
+    if (!event) {
+      return false;
+    }
+
     const {
       pid,
       tty,

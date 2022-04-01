@@ -150,14 +150,14 @@ export const timelineReducer = reducerWithInitialState(initialTimelineState)
   }))
   .case(
     updateTimelineSessionViewSessionId,
-    (state, { id, sessionEntityId, jumpToEntityId, jumpToCursor, isAlert }) => ({
+    (state, { id, sessionEntityId, jumpToEntityId, jumpToCursor, investigatedAlertId }) => ({
       ...state,
       timelineById: updateSessionViewSessionId({
         id,
         sessionEntityId,
         jumpToEntityId,
         jumpToCursor,
-        isAlert,
+        investigatedAlertId,
         timelineById: state.timelineById,
       }),
     })

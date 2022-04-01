@@ -130,21 +130,22 @@ const ActionsComponent: React.FC<ActionProps> = ({
   }, [dispatch, ecsData._id, timelineId, setGlobalFullScreen, setTimelineFullScreen]);
 
   const sessionViewConfig = useMemo(() => {
-    const { process } = ecsData;
-    const isAlert = eventType === 'signal';
+    const { process, _id } = ecsData;
     const sessionEntityId = process?.entry_leader?.entity_id?.[0];
-    const jumpToEntityId = process?.entity_id?.[0];
-    const jumpToCursor = process?.start?.[0];
 
     if (sessionEntityId === undefined) {
       return null;
     }
 
+    const jumpToEntityId = process?.entity_id?.[0];
+    const jumpToCursor = process?.start?.[0];
+    const investigatedAlertId = eventType === 'signal' ? _id : undefined;
+
     return {
       sessionEntityId,
       jumpToEntityId,
       jumpToCursor,
-      isAlert,
+      investigatedAlertId,
     };
   }, [ecsData, eventType]);
 

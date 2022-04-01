@@ -188,8 +188,8 @@ export const useSessionView = ({
 
   const sessionViewComponent = useMemo(() => {
     if (sessionViewConfig) {
-      const { sessionEntityId, jumpToEntityId, jumpToCursor, isAlert } = sessionViewConfig;
-      const investigatedAlertId = isAlert ? jumpToEntityId : undefined;
+      const { sessionEntityId, jumpToEntityId, jumpToCursor, investigatedAlertId } =
+        sessionViewConfig;
 
       if (sessionEntityId) {
         return sessionView.getSessionView({

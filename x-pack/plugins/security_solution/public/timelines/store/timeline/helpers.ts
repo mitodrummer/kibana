@@ -292,14 +292,14 @@ export const updateSessionViewSessionId = ({
   sessionEntityId,
   jumpToEntityId,
   jumpToCursor,
-  isAlert,
+  investigatedAlertId,
   timelineById,
 }: {
   id: string;
   sessionEntityId: string | null;
   jumpToEntityId?: string;
   jumpToCursor?: string;
-  isAlert?: boolean;
+  investigatedAlertId?: string;
   timelineById: TimelineById;
 }): TimelineById => {
   const timeline = timelineById[id];
@@ -312,7 +312,7 @@ export const updateSessionViewSessionId = ({
         sessionEntityId,
         jumpToEntityId,
         jumpToCursor,
-        isAlert,
+        investigatedAlertId,
       },
     },
   };

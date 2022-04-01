@@ -9,6 +9,7 @@ import React, { lazy, Suspense } from 'react';
 import { EuiLoadingSpinner } from '@elastic/eui';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { SessionViewDeps } from '../types';
+import { SessionView } from '../components/session_view';
 
 // Initializing react-query
 const queryClient = new QueryClient();
@@ -19,7 +20,8 @@ export const getSessionViewLazy = (props: SessionViewDeps) => {
   return (
     <QueryClientProvider client={queryClient}>
       <Suspense fallback={<EuiLoadingSpinner />}>
-        <SessionViewLazy {...props} />
+        <SessionView {...props} />
+        {/* <SessionViewLazy {...props} /> */}
       </Suspense>
     </QueryClientProvider>
   );

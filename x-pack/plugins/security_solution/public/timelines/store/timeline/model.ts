@@ -25,7 +25,7 @@ export interface SessionViewConfig {
   sessionEntityId: string | null;
   jumpToEntityId?: string;
   jumpToCursor?: string;
-  isAlert?: boolean;
+  investigatedAlertId?: string;
 }
 
 export type TimelineModel = TGridModelForTimeline & {

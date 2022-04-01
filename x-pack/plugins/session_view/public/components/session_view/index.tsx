@@ -66,8 +66,8 @@ export const SessionView = ({
 
   const onJumpToEvent = useCallback((event: ProcessEvent) => {
     if (event.process) {
-      const { entity_id, start } = event.process;
-      setCurrentJumpToEntityId(entity_id);
+      const { entity_id: entityId, start } = event.process;
+      setCurrentJumpToEntityId(entityId);
       setCurrentJumpToCursor(start);
       setSelectedProcess(null);
     }
