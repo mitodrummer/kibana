@@ -6,7 +6,7 @@
  */
 
 import React, { ChangeEvent, MouseEvent, useMemo } from 'react';
-import { EuiRange } from '@elastic/eui';
+import { EuiRange, EuiToolTip } from '@elastic/eui';
 import type { ProcessStartMarker } from '../../../../common/types/process_tree';
 import { useStyles } from './styles';
 import { PlayHead } from './play_head';
@@ -21,6 +21,7 @@ type Props = {
 type TTYPlayerLineMarker = {
   line: number;
   type: 'output' | 'data_limited';
+  name: string;
 };
 
 export const TTYPlayerControlsMarkers = ({
@@ -29,7 +30,7 @@ export const TTYPlayerControlsMarkers = ({
   currentLine,
   onChange,
 }: Props) => {
-  const styles = useStyles();
+  const styles = useStyles((currentLine / linesLength) * 100);
 
   const markers = useMemo(() => {
     if (processStartMarkers.length < 1) {
@@ -41,6 +42,7 @@ export const TTYPlayerControlsMarkers = ({
           type:
             event.process?.io?.max_bytes_per_process_exceeded === true ? 'data_limited' : 'output',
           line,
+          name: event.process?.name,
         } as TTYPlayerLineMarker)
     );
   }, [processStartMarkers]);
@@ -73,7 +75,7 @@ export const TTYPlayerControlsMarkers = ({
         style={{ left: `${(currentLine * 100) / linesLength}%` }}
       />
       <div css={styles.markersOverlay}>
-        {markers.map(({ line, type }, idx) => {
+        {markers.map(({ line, type, name }, idx) => {
           const selected =
             currentLine >= line &&
             (idx === markersLength - 1 || currentLine < markers[idx + 1].line);
@@ -81,7 +83,7 @@ export const TTYPlayerControlsMarkers = ({
           // markers positions are absolute, setting higher z-index on the selected one in case there
           // are severals next to each other
           const style = {
-            left: `${(line * 100) / linesLength}%`,
+            left: `${(line / linesLength) * 100}%`,
             zIndex: selected ? 3 : 2,
           };
 
@@ -95,7 +97,9 @@ export const TTYPlayerControlsMarkers = ({
               css={styles.marker(type, selected)}
               style={style}
             >
-              {type}
+              <EuiToolTip title={name}>
+                <div>{name}</div>
+              </EuiToolTip>
             </button>
           );
         })}

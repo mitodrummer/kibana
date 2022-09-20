@@ -11,7 +11,7 @@ import { useEuiTheme } from '../../../hooks';
 
 type TTYPlayerLineMarkerType = 'output' | 'data_limited';
 
-export const useStyles = () => {
+export const useStyles = (progress: number) => {
   const { euiTheme, euiVars } = useEuiTheme();
   const cached = useMemo(() => {
     const { border } = euiTheme;
@@ -34,9 +34,10 @@ export const useStyles = () => {
     };
 
     const marker = (type: TTYPlayerLineMarkerType, selected: boolean): CSSObject => ({
+      position: 'absolute',
+      top: 0,
       fontSize: 0,
       overflow: 'hidden',
-      position: 'absolute',
       padding: 0,
       width: 3,
       height: 12,
@@ -44,10 +45,8 @@ export const useStyles = () => {
       border: `${border.width.thick} solid ${euiVars.terminalOutputBackground}`,
       borderRadius: border.radius.small,
       boxSizing: 'content-box',
-      top: 0,
-      pointerEvents: 'none',
       marginLeft: '-3.5px',
-      transition: 'left .5s ease-in-out .3s',
+      transition: 'left .5s ease-in-out',
     });
 
     const playHeadThumb: CSSObject = {
@@ -82,6 +81,9 @@ export const useStyles = () => {
       "input[type='range']::-moz-range-thumb": customThumb,
       '.euiRangeHighlight__progress': {
         backgroundColor: euiVars.euiColorVis0_behindText,
+        width: progress + '%',
+        borderBottomRightRadius: 0,
+        borderTopRightRadius: 0,
       },
       '.euiRangeSlider:focus ~ .euiRangeHighlight .euiRangeHighlight__progress': {
         backgroundColor: euiVars.euiColorVis0_behindText,
@@ -109,7 +111,16 @@ export const useStyles = () => {
       range,
       playHead,
     };
-  }, [euiTheme, euiVars]);
+  }, [
+    euiTheme,
+    euiVars.euiColorVis0_behindText,
+    euiVars.euiColorVis1,
+    euiVars.terminalOutputBackground,
+    euiVars.terminalOutputMarkerAccent,
+    euiVars.terminalOutputMarkerWarning,
+    euiVars.terminalOutputSliderBackground,
+    progress,
+  ]);
 
   return cached;
 };
