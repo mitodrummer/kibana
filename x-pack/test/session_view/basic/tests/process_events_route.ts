@@ -6,9 +6,7 @@
  */
 
 import expect from '@kbn/expect';
-import { writeFile } from 'node:fs/promises';
 import { PROCESS_EVENTS_ROUTE } from '@kbn/session-view-plugin/common/constants';
-import { groupBy } from 'lodash';
 import { FtrProviderContext } from '../../common/ftr_provider_context';
 import { User } from '../../../rule_registry/common/lib/authentication/types';
 
@@ -50,39 +48,6 @@ export default function processEventsTests({ getService }: FtrProviderContext) {
         await esArchiver.load('x-pack/test/functional/es_archives/session_view/process_events');
         await esArchiver.load('x-pack/test/functional/es_archives/session_view/alerts');
         await esArchiver.load('x-pack/test/functional/es_archives/session_view/io_events');
-        const response = await supertest.get(PROCESS_EVENTS_ROUTE).set('kbn-xsrf', 'foo').query({
-          sessionEntityId: MOCK_SESSION_ENTITY_ID,
-          pageSize: 10000,
-        });
-
-        const groups = groupBy(response.body.events, (event) => {
-          const p = event._source as any;
-
-          return p.event.action;
-        });
-
-        const events = response.body.events
-          .filter((event: any) => {
-            return event._source.event.action === 'end';
-          })
-          .map((event: any) => {
-            event._source.process.end = event['@timestamp'];
-            event._source.event.action = ['fork', 'exec', 'end'];
-            event._source.event.type = ['start', 'end'];
-
-            return JSON.stringify({
-              type: 'doc',
-              value: {
-                index: 'logs-endpoint.events.process',
-                id: event._source.event.id,
-                source: event._source,
-              },
-            });
-          })
-          .join(',');
-
-        const data = new Uint8Array(Buffer.from(`[${events}]`));
-        await writeFile('/home/kg/workspace/end_events.json', data);
       });
 
       after(async () => {
