@@ -57,6 +57,8 @@ export const registerProcessEventsRoute = (
 
         return response.ok({ body });
       } catch (err) {
+        console.log(err);
+
         // unauthorized
         if (err.meta.statusCode === 403) {
           return response.ok({ body: { total: 0, events: [] } });

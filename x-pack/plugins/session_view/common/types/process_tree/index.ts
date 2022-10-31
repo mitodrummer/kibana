@@ -110,6 +110,7 @@ export interface ProcessSelf extends ProcessFields {
   entry_leader?: ProcessFields;
   group_leader?: ProcessFields;
   io?: IOFields;
+  previous?: [{ args: string; args_count: number; executable: string }];
 }
 
 export interface ProcessEventHost {
@@ -151,7 +152,7 @@ export interface ProcessEventAlert {
   status?: string;
   original_time?: string;
   original_event?: {
-    action?: string;
+    action?: EventAction | EventAction[];
   };
   rule?: ProcessEventAlertRule;
 }
@@ -161,7 +162,7 @@ export interface ProcessEvent {
   event?: {
     kind?: EventKind;
     category?: string;
-    action?: EventAction;
+    action?: EventAction | EventAction[];
     id?: string;
   };
   user?: User;
@@ -203,7 +204,6 @@ export interface Process {
   getOutput(): string;
   getDetails(): ProcessEvent;
   isUserEntered(): boolean;
-  getMaxAlertLevel(): number | null;
   getChildren(verboseMode: boolean): Process[];
   isVerbose(): boolean;
   getEndTime(): string;

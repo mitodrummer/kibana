@@ -1333,7 +1333,6 @@ export const childProcessMock: Process = {
       },
     } as ProcessEvent),
   isUserEntered: () => false,
-  getMaxAlertLevel: () => null,
   getEndTime: () => '',
   isDescendantOf: () => false,
 };
@@ -1518,7 +1517,6 @@ export const processMock: Process = {
       },
     } as ProcessEvent),
   isUserEntered: () => false,
-  getMaxAlertLevel: () => null,
   getEndTime: () => '',
   isDescendantOf: () => false,
 };
@@ -1566,7 +1564,6 @@ export const mockProcessMap = mockEvents.reduce(
       getOutput: () => '',
       getDetails: () => event,
       isUserEntered: () => false,
-      getMaxAlertLevel: () => null,
       isVerbose: () => true,
       getEndTime: () => '',
       isDescendantOf: () => false,
