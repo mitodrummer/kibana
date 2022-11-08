@@ -77,11 +77,21 @@ export const useStyles = ({ isInvestigated, isSelected }: StylesDeps) => {
       textTransform: 'capitalize',
     };
 
+    const outputPreview: CSSObject = {
+      backgroundColor: colors.ink,
+      fontFamily: font.familyCode,
+      color: colors.ghost,
+      fontSize: size.m,
+      padding: size.xs,
+      whiteSpace: 'nowrap',
+    };
+
     return {
       alert,
       alertStatus,
       alertName,
       actionBadge,
+      outputPreview,
     };
   }, [euiTheme, isInvestigated, isSelected, euiVars]);
 

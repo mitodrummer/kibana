@@ -6,8 +6,9 @@
  */
 
 import React, { useEffect, useCallback } from 'react';
+import * as esKuery from '@kbn/es-query';
 import { EuiFlexGroup, EuiFlexItem, EuiBadge, EuiIcon, EuiText, EuiButtonIcon } from '@elastic/eui';
-import { ProcessEvent, ProcessEventAlert } from '../../../common/types/process_tree';
+import { EventAction, ProcessEvent, ProcessEventAlert } from '../../../common/types/process_tree';
 import { dataOrDash } from '../../utils/data_or_dash';
 import { getBadgeColorFromAlertStatus } from './helpers';
 import { useStyles } from './styles';
@@ -21,6 +22,8 @@ export interface ProcessTreeAlertDeps {
   onShowAlertDetails: (alertUuid: string) => void;
 }
 
+const MAX_OUTPUT_PREVIEW_LENGTH = 30;
+
 export const ProcessTreeAlert = ({
   alert,
   isInvestigated,
@@ -31,7 +34,7 @@ export const ProcessTreeAlert = ({
 }: ProcessTreeAlertDeps) => {
   const styles = useStyles({ isInvestigated, isSelected });
 
-  const { event } = alert;
+  const { event, process } = alert;
   const { uuid, rule, workflow_status: status } = alert.kibana?.alert || {};
 
   useEffect(() => {
@@ -39,6 +42,37 @@ export const ProcessTreeAlert = ({
       selectAlert(uuid);
     }
   }, [isInvestigated, uuid, selectAlert]);
+
+  const getTextOutputMatch = useCallback(() => {
+    const text = process?.io?.text;
+    const query = rule?.parameters?.query;
+
+    if (query && text) {
+      const parsed = esKuery.fromKueryExpression(query);
+      const indexOf = parsed.arguments.findIndex((token: any) =>
+        token.value.includes('process.io.text')
+      );
+
+      if (indexOf > -1) {
+        const token = parsed.arguments[indexOf + 1];
+
+        if (token.value) {
+          const value = token.value
+            .replace(/@kuery-wildcard@/g, '*')
+            .replace(/(^|(?<!\\))\*/g, '.*')
+            .trim();
+          const regex = new RegExp(value);
+          const match = text.match(regex);
+
+          if (match) {
+            return match[0].substring(0, MAX_OUTPUT_PREVIEW_LENGTH);
+          }
+        }
+      }
+    }
+
+    return '';
+  }, [process?.io?.text, rule?.parameters?.query]);
 
   const handleExpandClick = useCallback(() => {
     if (uuid) {
@@ -91,6 +125,11 @@ export const ProcessTreeAlert = ({
         <EuiFlexItem grow={false}>
           <EuiBadge css={styles.actionBadge}>{event?.action}</EuiBadge>
         </EuiFlexItem>
+        {event?.action === EventAction.text_output && (
+          <EuiFlexItem grow={false}>
+            <span css={styles.outputPreview}>{getTextOutputMatch()}</span>
+          </EuiFlexItem>
+        )}
       </EuiFlexGroup>
     </div>
   );

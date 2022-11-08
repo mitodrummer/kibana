@@ -133,16 +133,20 @@ export interface ProcessEventHost {
   };
 }
 
+export interface ProcessEventAlertRuleParameters {
+  query?: string;
+}
+
 export interface ProcessEventAlertRule {
   category?: string;
   consumer?: string;
   description?: string;
   enabled?: boolean;
   name?: string;
-  query?: string;
   risk_score?: number;
   severity?: string;
   uuid?: string;
+  parameters?: ProcessEventAlertRuleParameters;
 }
 
 export interface ProcessEventAlert {
