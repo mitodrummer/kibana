@@ -229,5 +229,16 @@ export const getSecurityAppFeaturesConfig = (
     },
 
     [AppFeatureSecurityKey.osqueryAutomatedResponseActions]: {},
+
+    [AppFeatureSecurityKey.cloudDefend]: {
+      privileges: {
+        all: {
+          ui: ['cloud-defend'],
+        },
+        read: {
+          ui: ['cloud-defend'],
+        },
+      },
+    },
   };
 };

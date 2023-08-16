@@ -36,7 +36,7 @@ export const PLI_APP_FEATURES: PliAppFeatures = {
     ],
   },
   cloud: {
-    essentials: [],
-    complete: [],
+    essentials: [AppFeatureKey.cloudDefend],
+    complete: [AppFeatureKey.cloudDefendDriftPrevention],
   },
 } as const;

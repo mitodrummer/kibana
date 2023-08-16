@@ -53,6 +53,16 @@ export enum AppFeatureSecurityKey {
    * Enables Osquery Response Actions
    */
   osqueryAutomatedResponseActions = 'osquery_automated_response_actions',
+
+  /**
+   * Enables Cloud Workload Protection features
+   */
+  cloudDefend = 'cloud_defend',
+
+  /**
+   * Enables Drift prevention feature of CWP features
+   */
+  cloudDefendDriftPrevention = 'cloud_defend_drift_prevention',
 }
 
 export enum AppFeatureAssistantKey {
