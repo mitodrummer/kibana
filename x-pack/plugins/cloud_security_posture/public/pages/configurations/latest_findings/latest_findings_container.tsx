@@ -9,7 +9,7 @@ import { EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import type { Evaluation } from '../../../../common/types';
 import type { FindingsBaseProps, FindingsBaseURLQuery } from '../../../common/types';
-import { FindingsTable } from './latest_findings_table';
+// import { FindingsTable } from './latest_findings_table';
 import { FindingsSearchBar } from '../layout/findings_search_bar';
 import * as TEST_SUBJECTS from '../test_subjects';
 import { useLatestFindings } from './use_latest_findings';
@@ -25,6 +25,10 @@ import { LOCAL_STORAGE_PAGE_SIZE_FINDINGS_KEY } from '../../../common/constants'
 import { CspFinding } from '../../../../common/schemas/csp_finding';
 import { useCloudPostureTable } from '../../../common/hooks/use_cloud_posture_table';
 import { getPaginationTableParams } from '../../../common/hooks/use_cloud_posture_table/utils';
+import {
+  CloudSecurityDataGrid,
+  CloudSecurityDefaultColumn,
+} from '../../../components/cloud_security_data_grid';
 
 export const getDefaultQuery = ({
   query,
@@ -38,23 +42,17 @@ export const getDefaultQuery = ({
   findingIndex: -1,
 });
 
+const defaultColumns: CloudSecurityDefaultColumn[] = [
+  { id: 'resource.id', displayName: 'Resource ID' },
+  { id: 'resource.name', displayName: 'Resource Name' },
+];
+
 export const LatestFindingsContainer = ({ dataView }: FindingsBaseProps) => {
-  const {
-    pageIndex,
-    query,
-    sort,
-    queryError,
-    pageSize,
-    setTableOptions,
-    urlQuery,
-    setUrlQuery,
-    filters,
-    onResetFilters,
-  } = useCloudPostureTable({
-    dataView,
-    defaultQuery: getDefaultQuery,
-    paginationLocalStorageKey: LOCAL_STORAGE_PAGE_SIZE_FINDINGS_KEY,
-  });
+  const { pageIndex, query, sort, queryError, pageSize, urlQuery, setUrlQuery, filters } =
+    useCloudPostureTable({
+      dataView,
+      paginationLocalStorageKey: LOCAL_STORAGE_PAGE_SIZE_FINDINGS_KEY,
+    });
 
   /**
    * Page ES query result
@@ -64,11 +62,11 @@ export const LatestFindingsContainer = ({ dataView }: FindingsBaseProps) => {
     sort,
     enabled: !queryError,
   });
-
-  const slicedPage = usePageSlice(findingsGroupByNone.data?.page, pageIndex, pageSize);
+  const rows = findingsGroupByNone.data?.page;
 
   const error = findingsGroupByNone.error || queryError;
 
+  /// just ditched slicedpage.......
   const { isLastLimitedPage, limitedTotalItemCount } = useLimitProperties({
     total: findingsGroupByNone.data?.total,
     pageIndex,
@@ -89,12 +87,6 @@ export const LatestFindingsContainer = ({ dataView }: FindingsBaseProps) => {
   };
 
   const flyoutFindingIndex = urlQuery?.findingIndex;
-
-  const pagination = getPaginationTableParams({
-    pageSize,
-    pageIndex,
-    totalItemCount: limitedTotalItemCount,
-  });
 
   const onOpenFlyout = useCallback(
     (flyoutFinding: CspFinding) => {
@@ -170,6 +162,83 @@ export const LatestFindingsContainer = ({ dataView }: FindingsBaseProps) => {
             />
           )}
           <EuiSpacer />
+          <CloudSecurityDataGrid
+            dataView={dataView}
+            isLoading={findingsGroupByNone.isFetching}
+            defaultColumns={defaultColumns}
+            sort={[['@timestamp', 'desc']]}
+            rows={slicedPage}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            totalHits={
+            selectedRowIndex={flyoutFindingIndex}
+          />
+          {/*
+      settings={tableSettings}
+      showTimeCol={true}
+      isSortEnabled={true}
+      sort={sortingColumns}
+      rowHeightState={3}
+      onUpdateRowHeight={(rowHeight: number) => {
+        // Do the state update with the new setting of the row height
+      }}
+      isPlainRecord={isTextBasedQuery}
+      rowsPerPageState={50}
+      onUpdateRowsPerPage={(rowHeight: number) => {
+        // Do the state update with the new number of the rows per page
+      }
+      onFieldEdited={() =>
+        // Callback to execute on edit runtime field. Refetch data.
+      }
+      cellActionsTriggerId={SecurityCellActionsTrigger.DEFAULT}
+      services={{
+        theme,
+        fieldFormats,
+        storage,
+        toastNotifications: toastsService,
+        uiSettings,
+        dataViewFieldEditor,
+        data: dataPluginContract,
+      }}
+      visibleCellActions={3}
+      externalCustomRenderers={{
+        // Set the record style definition for the specific fields rendering Record<string,(props: EuiDataGridCellValueElementProps) => React.ReactNode>
+      }}
+      renderDocumentView={() =>
+        // Implement similar callback to render the Document flyout
+          const renderDetailsPanel = useCallback(
+                () => (
+                <DetailsPanel
+                    browserFields={browserFields}
+                    handleOnPanelClosed={handleOnPanelClosed}
+                    runtimeMappings={runtimeMappings}
+                    tabType={TimelineTabs.query}
+                    scopeId={timelineId}
+                    isFlyoutView
+                />
+                ),
+                [browserFields, handleOnPanelClosed, runtimeMappings, timelineId]
+            );
+      }
+      externalControlColumns={leadingControlColumns}
+      externalAdditionalControls={additionalControls}
+      trailingControlColumns={trailingControlColumns}
+      renderCustomGridBody={renderCustomGridBody}
+      rowsPerPageOptions={[10, 30, 40, 100]}
+      showFullScreenButton={false}
+      useNewFieldsApi={true}
+      maxDocFieldsDisplayed={50}
+      consumer="timeline"
+      totalHits={
+        // total number of the documents in the search query result. For example: 1200
+      }
+      onFetchMoreRecords={() => {
+        // Do some data fetch to get more data
+      }}
+      configRowHeight={3}
+      showMultiFields={true}
+    />
+
           <FindingsTable
             onResetFilters={onResetFilters}
             onCloseFlyout={onCloseFlyout}
@@ -195,7 +264,7 @@ export const LatestFindingsContainer = ({ dataView }: FindingsBaseProps) => {
                 }),
               })
             }
-          />
+          /> */}
         </>
       )}
       {isLastLimitedPage && <LimitedResultsBar />}
