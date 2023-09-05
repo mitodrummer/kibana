@@ -29,7 +29,7 @@ import {
   SORT_DEFAULT_ORDER_SETTING,
 } from '@kbn/discover-utils';
 import { popularizeField, useColumns } from '@kbn/unified-data-table';
-import type { DocViewFilterFn } from '@kbn/discover-utils/types';
+import { DocViewFilterFn } from '@kbn/unified-doc-viewer/types';
 import { useSavedSearchInitial } from '../../services/discover_state_provider';
 import { DiscoverStateContainer } from '../../services/discover_state';
 import { VIEW_MODE } from '../../../../../common/constants';
@@ -178,6 +178,13 @@ export function DiscoverLayout({ stateContainer }: DiscoverLayoutProps) {
   }, [isSidebarClosed, storage]);
 
   const contentCentered = resultState === 'uninitialized' || resultState === 'none';
+  const documentState = useDataState(stateContainer.dataState.data$.documents$);
+
+  const textBasedLanguageModeWarning = useMemo(() => {
+    if (isPlainRecord) {
+      return documentState.textBasedHeaderWarning;
+    }
+  }, [documentState.textBasedHeaderWarning, isPlainRecord]);
 
   const textBasedLanguageModeErrors = useMemo(() => {
     if (isPlainRecord) {
@@ -258,6 +265,7 @@ export function DiscoverLayout({ stateContainer }: DiscoverLayoutProps) {
         updateQuery={stateContainer.actions.onUpdateQuery}
         isPlainRecord={isPlainRecord}
         textBasedLanguageModeErrors={textBasedLanguageModeErrors}
+        textBasedLanguageModeWarning={textBasedLanguageModeWarning}
         onFieldEdited={onFieldEdited}
       />
       <EuiPageBody className="dscPageBody" aria-describedby="savedSearchTitle">

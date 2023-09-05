@@ -13,6 +13,7 @@ import {
   EuiDataGridCellValueElementProps,
   EuiDataGridCustomBodyProps,
 } from '@elastic/eui';
+import { Storage } from '@kbn/kibana-utils-plugin/public';
 import { act } from 'react-dom/test-utils';
 import { findTestSubject } from '@elastic/eui/lib/test';
 import { buildDataViewMock, deepMockedFields, esHitsMock } from '@kbn/discover-utils/src/__mocks__';
@@ -64,7 +65,7 @@ function getProps(): UnifiedDataTableProps {
       uiSettings: services.uiSettings,
       dataViewFieldEditor: services.dataViewFieldEditor,
       toastNotifications: services.toastNotifications,
-      storage: services.storage,
+      storage: services.storage as unknown as Storage,
       data: services.data,
       theme: services.theme,
     },
@@ -406,6 +407,29 @@ describe('UnifiedDataTable', () => {
       });
 
       expect(findTestSubject(component, 'test-renderer-custom-grid-body').exists()).toBeTruthy();
+    });
+  });
+
+  describe('componentsTourSteps', () => {
+    it('should render tour step for the first row of leading control column expandButton', async () => {
+      const component = await getComponent({
+        ...getProps(),
+        expandedDoc: {
+          id: 'test',
+          raw: {
+            _index: 'test_i',
+            _id: 'test',
+          },
+          flattened: { test: jest.fn() },
+        },
+        setExpandedDoc: jest.fn(),
+        renderDocumentView: jest.fn(),
+        componentsTourSteps: { expandButton: 'test-expand' },
+      });
+
+      const gridExpandBtn = findTestSubject(component, 'docTableExpandToggleColumn').first();
+      const tourStep = gridExpandBtn.getDOMNode().getAttribute('id');
+      expect(tourStep).toEqual('test-expand');
     });
   });
 });

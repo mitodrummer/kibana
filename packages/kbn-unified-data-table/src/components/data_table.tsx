@@ -34,13 +34,14 @@ import {
   type UseDataGridColumnsCellActionsProps,
 } from '@kbn/cell-actions';
 import type { ToastsStart, IUiSettingsClient } from '@kbn/core/public';
-import { Serializable } from '@kbn/utility-types';
-import type { DataTableRecord, DocViewFilterFn } from '@kbn/discover-utils/types';
+import type { Serializable } from '@kbn/utility-types';
+import type { DataTableRecord } from '@kbn/discover-utils/types';
 import { getShouldShowFieldHandler, DOC_HIDE_TIME_COLUMN_SETTING } from '@kbn/discover-utils';
 import type { DataViewFieldEditorStart } from '@kbn/data-view-field-editor-plugin/public';
 import type { FieldFormatsStart } from '@kbn/field-formats-plugin/public';
-import { ThemeServiceStart } from '@kbn/react-kibana-context-common';
+import type { ThemeServiceStart } from '@kbn/react-kibana-context-common';
 import type { DataPublicPluginStart } from '@kbn/data-plugin/public';
+import type { DocViewFilterFn } from '@kbn/unified-doc-viewer/types';
 import { UnifiedDataTableSettings, ValueToStringConverter } from '../types';
 import { getDisplayedColumns } from '../utils/columns';
 import { convertValueToString } from '../utils/convert_value_to_string';
@@ -131,11 +132,11 @@ export interface UnifiedDataTableProps {
    */
   settings?: UnifiedDataTableSettings;
   /**
-   * Saved search description
+   * Search description
    */
   searchDescription?: string;
   /**
-   * Saved search title
+   * Search title
    */
   searchTitle?: string;
   /**
@@ -277,6 +278,10 @@ export interface UnifiedDataTableProps {
    * Name of the UnifiedDataTable consumer component or application
    */
   consumer?: string;
+  /**
+   * Optional key/value pairs to set guided onboarding steps ids for a data table components included to guided tour.
+   */
+  componentsTourSteps?: Record<string, string>;
 }
 
 export const EuiDataGridMemoized = React.memo(EuiDataGrid);
@@ -329,6 +334,7 @@ export const UnifiedDataTable = ({
   visibleCellActions,
   externalCustomRenderers,
   consumer = 'discover',
+  componentsTourSteps,
 }: UnifiedDataTableProps) => {
   const { fieldFormats, toastNotifications, dataViewFieldEditor, uiSettings, storage, data } =
     services;
@@ -396,8 +402,10 @@ export const UnifiedDataTable = ({
         }
       },
       valueToStringConverter,
+      componentsTourSteps,
     }),
     [
+      componentsTourSteps,
       darkMode,
       dataView,
       displayedRows,
@@ -682,8 +690,10 @@ export const UnifiedDataTable = ({
   );
 
   const inMemory = useMemo(() => {
-    return isPlainRecord ? ({ level: 'sorting' } as EuiDataGridInMemory) : undefined;
-  }, [isPlainRecord]);
+    return isPlainRecord && columns.length
+      ? ({ level: 'sorting' } as EuiDataGridInMemory)
+      : undefined;
+  }, [columns.length, isPlainRecord]);
 
   const toolbarVisibility = useMemo(
     () =>
@@ -718,7 +728,7 @@ export const UnifiedDataTable = ({
 
   if (!rowCount && loadingState === DataLoadingState.loading) {
     return (
-      <div className="euiDataGrid__loading">
+      <div className="euiDataGrid__loading" data-test-subj="unifiedDataTableLoading">
         <EuiText size="xs" color="subdued">
           <EuiLoadingSpinner />
           <EuiSpacer size="s" />

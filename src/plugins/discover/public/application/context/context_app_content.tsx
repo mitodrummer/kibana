@@ -13,7 +13,7 @@ import type { DataView } from '@kbn/data-views-plugin/public';
 import { SortDirection } from '@kbn/data-plugin/public';
 import type { SortOrder } from '@kbn/saved-search-plugin/public';
 import { CellActionsProvider } from '@kbn/cell-actions';
-import type { DataTableRecord, DocViewFilterFn } from '@kbn/discover-utils/types';
+import type { DataTableRecord } from '@kbn/discover-utils/types';
 import {
   type SearchResponseInterceptedWarning,
   SearchResponseWarnings,
@@ -26,6 +26,7 @@ import {
   SHOW_MULTIFIELDS,
 } from '@kbn/discover-utils';
 import { DataLoadingState, UnifiedDataTable } from '@kbn/unified-data-table';
+import { DocViewFilterFn } from '@kbn/unified-doc-viewer/types';
 import { getDefaultRowsPerPage } from '../../../common/constants';
 import { LoadingStatus } from './services/context_query_state';
 import { ActionBar } from './components/action_bar/action_bar';
@@ -35,7 +36,7 @@ import { MAX_CONTEXT_SIZE, MIN_CONTEXT_SIZE } from './services/constants';
 import { DocTableContext } from '../../components/doc_table/doc_table_context';
 import { useDiscoverServices } from '../../hooks/use_discover_services';
 import { DiscoverGridFlyout } from '../../components/discover_grid_flyout';
-import { DocViewer } from '../../services/doc_views/components/doc_viewer';
+import { DISCOVER_TOUR_STEP_ANCHOR_IDS } from '../../components/discover_tour';
 
 export interface ContextAppContentProps {
   columns: string[];
@@ -181,7 +182,6 @@ export function ContextAppContent({
           sort={sort}
           useNewFieldsApi={useNewFieldsApi}
           dataTestSubj="contextDocTable"
-          DocViewer={DocViewer}
         />
       )}
       {!isLegacy && (
@@ -210,6 +210,7 @@ export function ContextAppContent({
               maxDocFieldsDisplayed={services.uiSettings.get(MAX_DOC_FIELDS_DISPLAYED)}
               renderDocumentView={renderDocumentView}
               services={services}
+              componentsTourSteps={{ expandButton: DISCOVER_TOUR_STEP_ANCHOR_IDS.expandDocument }}
             />
           </CellActionsProvider>
         </div>

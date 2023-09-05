@@ -20,8 +20,8 @@ Props description:
 | **sampleSize** | number | The max size of the documents returned by Elasticsearch. |
 | **setExpandedDoc** | (optional)(doc?: DataTableRecord) => void; | Function to set the expanded document, which is displayed in a flyout. |
 | **settings** | (optional)UnifiedDataTableSettings | Grid display settings persisted in Elasticsearch (e.g. column width). |
-| **searchDescription** | (optional)string | Saved search description. |
-| **searchTitle** | (optional)string | Saved search title. |
+| **searchDescription** | (optional)string | Search description. |
+| **searchTitle** | (optional)string | Search title. |
 | **showTimeCol** | boolean | Determines whether the time columns should be displayed (legacy settings). |
 | **showFullScreenButton** | (optional)boolean | Determines whether the full screen button should be displayed. |
 | **isSortEnabled** | (optional)boolean | Manage user sorting control. |
@@ -51,6 +51,7 @@ Props description:
 | **visibleCellActions** | (optional)number | An optional value for a custom number of the visible cell actions in the table. By default is up to 3. |
 | **externalCustomRenderers** | (optional)Record<string,(props: EuiDataGridCellValueElementProps) => React.ReactNode>; | An optional settings for a specified fields rendering like links. Applied only for the listed fields rendering. |
 | **consumer** | (optional)string | Name of the UnifiedDataTable consumer component or application. |
+| **componentsTourSteps** | (optional)Record<string,string> | Optional key/value pairs to set guided onboarding steps ids for a data table components included to guided tour. |
 
 *Required **services** list:
 ```
@@ -66,7 +67,11 @@ Props description:
 Usage example:
 
 ```
-    <UnifiedDataTable
+    // Memoize unified data table to avoid the unnecessary re-renderings
+    const DataTableMemoized = React.memo(UnifiedDataTable);
+
+   // Add memoized component with all needed props
+    <DataTableMemoized
       ariaLabelledBy="timelineDocumentsAriaLabel"
       className={'unifiedDataTableTimeline'}
       columns={['event.category', 'event.action', 'host.name', 'user.name']}
@@ -153,6 +158,7 @@ Usage example:
       }}
       configRowHeight={3}
       showMultiFields={true}
+      componentsTourSteps={'expandButton': DISCOVER_TOUR_STEP_ANCHOR_IDS.expandDocument}
     />
 ```
 
