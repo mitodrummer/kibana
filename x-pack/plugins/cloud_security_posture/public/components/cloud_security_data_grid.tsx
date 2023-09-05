@@ -4,7 +4,7 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useColumns } from '@kbn/unified-data-table';
 import { type DataView } from '@kbn/data-views-plugin/common';
 import { UnifiedDataTable, DataLoadingState } from '@kbn/unified-data-table';
@@ -26,9 +26,9 @@ interface CloudSecurityDataGridProps {
   defaultColumns: CloudSecurityDefaultColumn[];
   sort: SortOrder[];
   rows: DataTableRecord[];
-  pageIndex: number;
   pageSize: number;
   totalHits: number;
+  sampleSize: number;
   selectedRowIndex?: number;
 }
 
@@ -38,16 +38,30 @@ export const CloudSecurityDataGrid = ({
   defaultColumns,
   sort,
   rows,
-  pageIndex,
   pageSize,
-  totalItems,
+  totalHits,
+  sampleSize,
   selectedRowIndex = -1,
 }: CloudSecurityDataGridProps) => {
+  // current set/order of columns (TODO: persist)
   const [columns, setColumns] = useState(defaultColumns.map((c) => c.id));
+
+  // to allow for quick access to default column configurations
+  const defaultColumnsMap = useMemo(() => {
+    const m: { [key: string]: CloudSecurityDefaultColumn } = {};
+    defaultColumns.reduce((prev, cur) => {
+      prev[cur.id] = cur;
+
+      return prev;
+    }, m);
+
+    return m;
+  }, [defaultColumns]);
 
   // services needed for unified-data-table package
   const {
     uiSettings,
+    uiActions,
     dataViews,
     data,
     application,
@@ -83,7 +97,7 @@ export const CloudSecurityDataGrid = ({
     defaultOrder: uiSettings.get(SORT_DEFAULT_ORDER_SETTING),
     dataView,
     dataViews,
-    setAppState: () => console.log('setting app state'),
+    setAppState: (props) => console.log('setting app state', props),
     useNewFieldsApi,
     columns,
     sort,
@@ -92,7 +106,7 @@ export const CloudSecurityDataGrid = ({
   const ariaLabelledBy = 'bla'; // TODO
 
   return (
-    <CellActionsProvider getTriggerCompatibleActions={() => Promise.resolve([])}>
+    <CellActionsProvider getTriggerCompatibleActions={uiActions.getTriggerCompatibleActions}>
       <UnifiedDataTable
         ariaLabelledBy={ariaLabelledBy}
         columns={currentColumns}
@@ -104,14 +118,17 @@ export const CloudSecurityDataGrid = ({
         onSetColumns={(newColumns: string[], hideTimeColumn: boolean) => console.log(newColumns)}
         onSort={(newSort: string[][]) => console.log(newSort)}
         rows={rows}
-        sampleSize={10000}
+        sampleSize={sampleSize}
         setExpandedDoc={(doc?: DataTableRecord) => console.log(doc)}
         sort={sort}
         rowsPerPageState={pageSize}
         totalHits={totalHits}
         services={services}
-        showTimeCol
         useNewFieldsApi
+        onUpdateRowsPerPage={(rowHeight: number) => {
+          // Do the state update with the new number of the rows per page
+        }}
+        showTimeCol={false}
       />
     </CellActionsProvider>
   );

@@ -4,7 +4,7 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import type { Evaluation } from '../../../../common/types';
@@ -15,16 +15,13 @@ import * as TEST_SUBJECTS from '../test_subjects';
 import { useLatestFindings } from './use_latest_findings';
 import type { FindingsGroupByNoneQuery } from './use_latest_findings';
 import { FindingsDistributionBar } from '../layout/findings_distribution_bar';
+import { baseFindingsColumns } from '../layout/findings_layout';
 import { getFindingsPageSizeInfo, getFilters } from '../utils/utils';
-import { LimitedResultsBar } from '../layout/findings_layout';
 import { FindingsGroupBySelector } from '../layout/findings_group_by_selector';
-import { usePageSlice } from '../../../common/hooks/use_page_slice';
 import { ErrorCallout } from '../layout/error_callout';
-import { useLimitProperties } from '../../../common/utils/get_limit_properties';
 import { LOCAL_STORAGE_PAGE_SIZE_FINDINGS_KEY } from '../../../common/constants';
 import { CspFinding } from '../../../../common/schemas/csp_finding';
 import { useCloudPostureTable } from '../../../common/hooks/use_cloud_posture_table';
-import { getPaginationTableParams } from '../../../common/hooks/use_cloud_posture_table/utils';
 import {
   CloudSecurityDataGrid,
   CloudSecurityDefaultColumn,
@@ -47,6 +44,16 @@ const defaultColumns: CloudSecurityDefaultColumn[] = [
   { id: 'resource.name', displayName: 'Resource Name' },
 ];
 
+/*
+      createColumnWithFilters(baseFindingsColumns['result.evaluation'], { onAddFilter }),
+      createColumnWithFilters(baseFindingsColumns['resource.id'], { onAddFilter }),
+      createColumnWithFilters(baseFindingsColumns['resource.name'], { onAddFilter }),
+      createColumnWithFilters(baseFindingsColumns['resource.sub_type'], { onAddFilter }),
+      baseFindingsColumns['rule.benchmark.rule_number'],
+      createColumnWithFilters(baseFindingsColumns['rule.name'], { onAddFilter }),
+      createColumnWithFilters(baseFindingsColumns['rule.section'], { onAddFilter }),
+      baseFindingsColumns['@timestamp'],
+ */
 export const LatestFindingsContainer = ({ dataView }: FindingsBaseProps) => {
   const { pageIndex, query, sort, queryError, pageSize, urlQuery, setUrlQuery, filters } =
     useCloudPostureTable({
@@ -62,16 +69,15 @@ export const LatestFindingsContainer = ({ dataView }: FindingsBaseProps) => {
     sort,
     enabled: !queryError,
   });
-  const rows = findingsGroupByNone.data?.page;
+
+  const rows = useMemo(
+    () => findingsGroupByNone.data?.page || [],
+    [findingsGroupByNone.data?.page]
+  );
+
+  const sampleSize = findingsGroupByNone.data?.total || 0;
 
   const error = findingsGroupByNone.error || queryError;
-
-  /// just ditched slicedpage.......
-  const { isLastLimitedPage, limitedTotalItemCount } = useLimitProperties({
-    total: findingsGroupByNone.data?.total,
-    pageIndex,
-    pageSize,
-  });
 
   const handleDistributionClick = (evaluation: Evaluation) => {
     setUrlQuery({
@@ -91,14 +97,14 @@ export const LatestFindingsContainer = ({ dataView }: FindingsBaseProps) => {
   const onOpenFlyout = useCallback(
     (flyoutFinding: CspFinding) => {
       setUrlQuery({
-        findingIndex: slicedPage.findIndex(
+        findingIndex: (rows as unknown as CspFinding[]).findIndex(
           (finding) =>
             finding.resource.id === flyoutFinding?.resource.id &&
             finding.rule.id === flyoutFinding?.rule.id
         ),
       });
     },
-    [slicedPage, setUrlQuery]
+    [rows, setUrlQuery]
   );
 
   const onCloseFlyout = () =>
@@ -156,7 +162,7 @@ export const LatestFindingsContainer = ({ dataView }: FindingsBaseProps) => {
                 ...getFindingsPageSizeInfo({
                   pageIndex,
                   pageSize,
-                  currentPageSize: slicedPage.length,
+                  currentPageSize: rows.length,
                 }),
               }}
             />
@@ -167,10 +173,10 @@ export const LatestFindingsContainer = ({ dataView }: FindingsBaseProps) => {
             isLoading={findingsGroupByNone.isFetching}
             defaultColumns={defaultColumns}
             sort={[['@timestamp', 'desc']]}
-            rows={slicedPage}
-            pageIndex={pageIndex}
+            rows={rows}
             pageSize={pageSize}
-            totalHits={
+            totalHits={rows.length}
+            sampleSize={sampleSize}
             selectedRowIndex={flyoutFindingIndex}
           />
           {/*
@@ -267,7 +273,6 @@ export const LatestFindingsContainer = ({ dataView }: FindingsBaseProps) => {
           /> */}
         </>
       )}
-      {isLastLimitedPage && <LimitedResultsBar />}
     </div>
   );
 };
